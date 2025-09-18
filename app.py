@@ -12,7 +12,7 @@ from collections import Counter
 DEFAULT_XLSX = "Program Manager - Fortnightly school audit checklist - HUHT project, June-Dec 2025 (Responses).xlsx"
 DEFAULT_SHEET = "Form Responses 1"
 
-st.set_page_config(page_title="Program Manager - Fortnightly School Audit Dashboard", layout="wide")
+st.set_page_config(page_title="Program Manager - Fortnightly School Audit Dashboard", layout="wide", initial_sidebar_state="collapsed")
 
 SAT_DOMAIN = ["Not Satisfied", "Satisfied", "Very Satisfied"]
 # Include common misspelling mapping when encountered
@@ -23,6 +23,33 @@ SAT_ALIASES: Dict[str, str] = {
     "very satisfied": "Very Satisfied",
 }
 SAT_COLORS = ["#C00000", "#F5AE1B", "#007467"]
+
+# Inject responsive CSS for mobile
+def inject_responsive_css() -> None:
+    st.markdown(
+        """
+        <style>
+        /* Reduce default paddings on small screens */
+        @media (max-width: 768px) {
+          .block-container { padding: 0.6rem 0.6rem 2rem 0.6rem !important; }
+          h1 { font-size: 1.3rem !important; }
+          h2 { font-size: 1.1rem !important; }
+          h3 { font-size: 1.0rem !important; }
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def apply_chart_theme(chart: alt.Chart) -> alt.Chart:
+    return (
+        chart
+        .configure_axis(labelFontSize=11, titleFontSize=12)
+        .configure_legend(labelFontSize=11, titleFontSize=12)
+        .configure_view(strokeWidth=0)
+        .configure(padding={"left": 5, "right": 5, "top": 5, "bottom": 5})
+    )
 
 @st.cache_data(show_spinner=False)
 def load_excel(path: str, sheet_name: Optional[str] = None) -> pd.DataFrame:
@@ -303,8 +330,8 @@ def build_stacked_chart_vertical(df: pd.DataFrame, columns: List[str], title: Op
         )
     )
 
-    chart = bars.properties(height=460)
-    return chart
+    chart = bars.properties(height=360)
+    return apply_chart_theme(chart)
 
 
 def extract_observations_text(df: pd.DataFrame, column_name: str) -> pd.DataFrame:
@@ -381,6 +408,8 @@ def observations_charts(df: pd.DataFrame, column_name: str) -> Optional[alt.VCon
 
 
 def main() -> None:
+    inject_responsive_css()
+
     st.title("Program Manager - Fortnightly School Audit Dashboard")
     st.caption("Analyze responses from the Excel sheet 'Form Responses 1'.")
 

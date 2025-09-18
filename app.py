@@ -413,19 +413,6 @@ def main() -> None:
     else:
         st.info("No 'Classroom Indicators – Rate your observation [...]' columns found.")
 
-    # Key Observations from Classroom Indicators (text analysis)
-    st.markdown("**Key Observations from Classroom Indicators**")
-    notes_col_candidates = [c for c in filtered_df.columns if str(c).strip().lower() == "notes from classroom observations"]
-    notes_col = notes_col_candidates[0] if notes_col_candidates else None
-    if notes_col:
-        obs_chart = observations_charts(filtered_df, notes_col)
-        if obs_chart is not None:
-            st.altair_chart(obs_chart, use_container_width=True)
-        else:
-            st.info("No sufficient text found to extract observations.")
-    else:
-        st.info("Column 'Notes from classroom observations' not found.")
-
     # Performance of Corridors and Open Spaces (vertical stacked)
     st.subheader("Performance of Corridors and Open Spaces")
     corridor_cols = find_corridors_columns(filtered_df)
